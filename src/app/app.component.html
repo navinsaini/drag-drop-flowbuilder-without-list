@@ -1,0 +1,64 @@
+<div class="app-container">
+  <div class="main">
+    <div class="app-content">
+      <div class="dialog-wrapper">
+        <div class="dialog-panel">
+          <div class="body">
+            <div class="graph" [class.stable]="isGraphStable">
+              <div #transformableElm class="transformable-view">
+                <div #rootElm class="scrollable transform-interactive-zone" (mousedown)="handleMouseDown($event)"
+                  (mousemove)="handleMouseMove($event)" (mouseup)="handleMouseUp($event)"
+                  (wheel)="handleMouseWheel($event)" (transitionend)="updateView()">
+                  <div #boundryElm class="boundary transform-interactive-zone">
+                    <div #targetElm class="transform-target transform-interactive-zone">
+                      <div #boundryCornerElm class="boundary-corner"></div>
+                      <ng-container *ngFor="let items of displayRecords;let pIndex=index">
+                        <ng-container *ngFor="let item of items;let cIndex=index">
+                          <app-node [class.parent-node]="!item.connectedTo" id={{item.id}} cdkDrag [cdkDragData]="item"
+                            [cdkDragBoundary]="boundryElm" (cdkDragEnded)="onDropEnd($event)"
+                            (cdkDragMoved)="onDragMove($event)" #allNodes [nodeProps]="item"
+                            (onAddNew)="onAddNew($event)" (onDeleteNode)="onDeleteNode($event)">
+                            <img class="connect-to" src="assets/connect.svg" (click)="showConnectTo(item)" />
+                          </app-node>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+                <div class="transform-buttons">
+                  <button type="button" title="Add new" (click)="handleButtonAction('ADDNEW')">
+                    <img src="assets/add.svg" />
+                  </button>
+                  <button type="button" title="Zoom in" (click)="handleButtonAction('ZOOMIN')">
+                    <img src="assets/zoom-in.svg" />
+                  </button>
+                  <button type="button" title="Recenter" (click)="handleButtonAction('RECENTER')">
+                    <img src="assets/recenter.svg" />
+                  </button>
+                  <button type="button" title="Zoom out" (click)="handleButtonAction('ZOOMOUT')">
+                    <img src="assets/zoom-out.svg" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="overlay" *ngIf="connectToItem"></div>
+<div class="popup" *ngIf="connectToItem">
+  <select #ctrl>
+    <option value="">Choose Connect to</option>
+    <ng-container *ngFor="let record of records">
+      <option
+        *ngIf="record.id!=connectToItem.id && record.id!=connectToItem.connectedTo && record.connectedTo!=connectToItem.id"
+        [value]="record.id">{{record.title}}</option>
+    </ng-container>
+  </select>
+  <div class="buttons">
+    <button type="button" class="close" (click)="onConnectItem(null)">Close</button>
+    <button type="button" class="apply" (click)="onConnectItem(ctrl.value)">Apply</button>
+  </div>
+</div>
